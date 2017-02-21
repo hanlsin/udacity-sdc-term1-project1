@@ -1,3 +1,12 @@
+
+# PyCharm
+.idea
+
+# Project
+.ipynb_checkpoints
+raw_moview/tmp/*
+p1-lane-lines.ipynb
+
 # Windows image file caches
 
 Thumbs.db
