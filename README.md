@@ -5,7 +5,7 @@
 
 ## Overview
 ---
-![Processing Images](fll_solidYellowCurve2.jpg)
+![Processing Images](examples/fll_solidYellowCurve2.jpg)
 
 When we drive, we use our eyes to decide where to go. The lines on the road that show us where the lanes are act as our constant reference for where to steer the vehicle. Naturally, one of the first things we would like to do in developing a self-driving car is to automatically detect lane lines using an algorithm.
 
@@ -50,18 +50,20 @@ You can install it using Python's package manage, pip.
 	  $ pip install moviepy
 
 ## Directories and Files
-	--row_images[]
-    |-row_movies[]
-    |-find_lane_lines.ipynb
-    |-find_lane_lines.py
-    |-fll_solidYellowCurve2.jpg
-    |-fll_whiteCarLaneSwitch.jpg
-    |-README.md
-    |-test_raw_images.py
-    |-test_raw_movies.py
-    --writeup.md
+This project contains directories and files as below.
 
-This project contains directories and files as above.
+    -- examples
+    |- row_images[]
+    |- row_movies[]
+    |- find_lane_lines.ipynb
+    |- find_lane_lines.py
+    |- README.md
+    |- test_raw_images.py
+    |- test_raw_movies.py
+    -- writeup.md
+
+* examples
+This is a directory that contains example images showing process.
 
 * raw_images
 This is a directory that contains images to test.
@@ -74,9 +76,6 @@ This file is a Jupyter Notebook. The content of thie file is test of functions i
 
 * find_lane_lines.py
 This file contains the main code for this project.
-
-* fll_solidYellowCurve2.jpg, fll_whiteCarLaneSwitch.jpg
-These files are processing example images to show in 'README.md' and 'writeup.md'.
 
 * README.md
 You are reading this file.

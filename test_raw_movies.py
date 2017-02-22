@@ -24,10 +24,10 @@ for movie_name in test_movie_name_list:
     turn_off_cache()
 
     # Generate new lane lines clip.
-    #new_clip2 = clip.fl_image(draw_lane_lines)
+    new_clip2 = clip.fl_image(draw_lane_lines)
     # Save new video file.
     new_movie2_name = 'new_no_cached_' + movie_name
-    #new_clip1.write_videofile(new_movie2_name)
+    new_clip1.write_videofile(new_movie2_name)
 
     # Generate a temporary directory
     tmp_dir = 'tmp/'

@@ -175,7 +175,7 @@ def find_intersection_x(left_fit, right_fit):
     return (r_b - l_b) / (l_m - r_m)
 
 
-cached_img_on = True
+cached_img_on = False
 cached_img_max_size = 5
 cached_img_q = deque()
 
@@ -192,7 +192,7 @@ def switch_img_cache(is_on, max_size=cached_img_max_size):
         cached_img_q.clear()
 
 
-cached_lines_on = True
+cached_lines_on = False
 cached_lines_max_size = 100
 cached_lines_q = deque()
 
