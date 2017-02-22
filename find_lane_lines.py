@@ -4,6 +4,8 @@ import matplotlib.image as mpimg
 import numpy as np
 import cv2
 
+from collections import deque
+
 # Default values of Hough Line Transform.
 DFLT_HLPT_RHO = 2
 DFLT_HLPT_THETA = np.pi / 180
@@ -173,59 +175,73 @@ def find_intersection_x(left_fit, right_fit):
     return (r_b - l_b) / (l_m - r_m)
 
 
+cached_img_on = True
+cached_img_max_size = 5
+cached_img_q = deque()
+
+
+def switch_img_cache(is_on, max_size=cached_img_max_size):
+    global cached_img_on, cached_img_max_size
+    if is_on == cached_img_on:
+        return
+
+    cached_img_on = is_on
+    cached_img_max_size = max_size
+
+    if not is_on:
+        cached_img_q.clear()
+
+
+cached_lines_on = True
+cached_lines_max_size = 100
+cached_lines_q = deque()
+
+
+def switch_line_seg_cache(is_on, max_size=cached_lines_max_size):
+    global cached_lines_on, cached_lines_max_size
+    if is_on == cached_lines_on:
+        return
+
+    cached_lines_on = is_on
+    cached_lines_max_size = max_size
+
+    if not is_on:
+        cached_lines_q.clear()
+
+
+def turn_on_cache(img_max=cached_img_max_size,
+                  line_seg_max=cached_lines_max_size):
+    switch_img_cache(True, img_max)
+    switch_line_seg_cache(True, line_seg_max)
+
+
+def turn_off_cache():
+    switch_img_cache(False)
+    switch_line_seg_cache(False)
+    reset_cache()
+
+
+def reset_cache():
+    cached_img_q.clear()
+    cached_lines_q.clear()
+
+
 def draw_lane_lines(image):
     # Convert to gray.
     gray_img = convert_to_gray(image)
 
-    # Run Gaussian smoothing.
-    blur_img = run_gaussian_smoothing(gray_img)
+    if cached_img_on:
+        # Append previous images in the cache to the target image.
+        global cached_img_q
 
-    # Run Canny edge detection.
-    edges_img = run_canny_edge_detection(blur_img)
+        # if Queue size is over max, pop oldest.
+        if len(cached_img_q) == cached_img_max_size:
+            cached_img_q.popleft()
 
-    # Mask image except for rectangle space.
-    img_shape = image.shape
-    masked_img = mask_rectangle_img(edges_img, (50, img_shape[0]), (570, 300),
-                                    (620, 300), (img_shape[1], img_shape[0]))
-    # masked_img = mask_rectangle_img(edges_img, (50, img_shape[0]), (450, 330),
-    #                                (520, 330), (img_shape[1], img_shape[0]))
+        cached_img_q.append(gray_img)
 
-    # Run Hough line transform and draw regression line.
-    try:
-        reg_line_img = draw_regression_line(masked_img, np.copy(image) * 0,
-                                            line_thick=10)
-    except ValueError as e:
-        # plt.imshow(gray_img)
-        # plt.show()
-        # plt.imshow(blur_img)
-        # plt.show()
-        # plt.imshow(edges_img)
-        # plt.show()
-        # plt.imshow(masked_img)
-        # plt.show()
-        return image
-
-    # Combine original image with line segments image.
-    return combine_images(image, reg_line_img)
-
-
-cached_lines_max_size = 100
-cached_lines_list = []
-cached_lines_idx = 0
-
-
-def set_cache_size(size):
-    cached_lines_max_size = size
-
-
-def reset_cache():
-    cached_lines_list[:] = []
-    cached_lines_idx = 0
-
-
-def draw_lane_lines_with_cache(image):
-    # Convert to gray.
-    gray_img = convert_to_gray(image)
+        for img in reversed(cached_img_q):
+            combine_images(img, gray_img)
 
     # Run Gaussian smoothing.
     blur_img = run_gaussian_smoothing(gray_img)
@@ -243,23 +259,22 @@ def draw_lane_lines_with_cache(image):
     # Run Hough line transform.
     lines = run_hough_lp_transform(masked_img)
 
-    # Append previous lines.
-    global cached_lines_list
-    global cached_lines_idx
+    if cached_lines_on:
+        # Append previous lines in the cache to the present lines.
+        global cached_lines_q
 
-    if len(cached_lines_list) < cached_lines_max_size:
-        cached_lines_list.append(lines[0])
-    else:
-        cached_lines_list[cached_lines_idx] = lines[0]
-    cached_lines_idx = cached_lines_idx + 1
-    if cached_lines_idx == cached_lines_max_size:
-        cached_lines_idx = 0
+        if len(cached_lines_q) == cached_lines_max_size:
+            cached_lines_q.popleft()
+
+        cached_lines_q.append(lines[0])
+
+        lines = cached_lines_q
 
     # Draw regression line.
     try:
-        l_fit, r_fit = find_regression_line(cached_lines_list)
+        l_fit, r_fit = find_regression_line(lines)
     except ValueError as e:
-        cached_lines_idx = cached_lines_idx - 1
+        return image
 
     l_fn = np.poly1d(l_fit)
     r_fn = np.poly1d(r_fit)

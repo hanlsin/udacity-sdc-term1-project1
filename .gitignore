@@ -4,7 +4,9 @@
 
 # Project
 .ipynb_checkpoints
-raw_movies/tmp
+tmp
+*.mp4
+*.pyc
 
 # Windows image file caches
 
