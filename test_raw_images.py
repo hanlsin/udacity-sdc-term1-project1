@@ -89,7 +89,8 @@ for img_path in test_img_path:
     ax.imshow(comb_lines_img)
     ax.set_title('Combine 2')
 
-    plt.show()
+    #plt.show()
+    plt.savefig('fll_' + img_path)
 
 """
 for img_path in test_img_path:
