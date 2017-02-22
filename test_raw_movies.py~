@@ -3,7 +3,6 @@ import os
 import matplotlib.pyplot as plt
 
 from moviepy.editor import VideoFileClip
-from IPython.display import HTML
 from find_lane_lines import draw_lane_lines
 from find_lane_lines import reset_cache
 from find_lane_lines import draw_lane_lines_with_cache
@@ -13,7 +12,7 @@ for movie_path in test_mvs_path:
     print("Movie: " + movie_path)
 
     # Generate a temporary directory
-    tmp_dir = 'lane_line_movies'
+    tmp_dir = 'raw_movies/tmp'
     if not os.path.exists(tmp_dir):
         os.makedirs(tmp_dir)
 

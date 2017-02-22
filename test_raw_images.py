@@ -1,6 +1,7 @@
 # coding=utf-8
 import os
 import matplotlib.pyplot as plt
+import matplotlib.font_manager as fontm
 import numpy as np
 
 from find_lane_lines import draw_lane_lines
@@ -18,56 +19,76 @@ test_img_path = os.listdir('raw_images/')
 for img_path in test_img_path:
     print("Image: " + img_path)
 
+    fig = plt.figure(figsize=(20, 10))
+    fig_txt = fig.text(0.5, 0.95, img_path, horizontalalignment='center',
+                       fontproperties=fontm.FontProperties(size=15))
+    grid_s = (3, 4)
+    len_fig = 3
+
     # Read image
     org_img = read_image('raw_images/' + img_path)
-    plt.imshow(org_img)
-    #plt.show()
+    ax = plt.subplot2grid(grid_s, (0, 0))
+    ax.imshow(org_img)
+    ax.set_title('Original')
 
     # Convert to gray.
     gray_img = convert_to_gray(org_img)
-    plt.imshow(gray_img, cmap="gray")
-    #plt.show()
+    ax = plt.subplot2grid(grid_s, (0, 1))
+    ax.imshow(gray_img, cmap="gray")
+    ax.set_title('Gray')
 
     # Run Gaussian smoothing.
     blur_img = run_gaussian_smoothing(gray_img)
-    plt.imshow(blur_img, cmap="gray")
-    #plt.show()
+    ax = plt.subplot2grid(grid_s, (0, 2))
+    ax.imshow(blur_img, cmap="gray")
+    ax.set_title('Blur')
 
     # Run Canny edge detection.
     edges_img = run_canny_edge_detection(blur_img)
-    plt.imshow(edges_img)
-    #plt.show()
+    ax = plt.subplot2grid(grid_s, (0, 3))
+    ax.imshow(edges_img)
+    ax.set_title('Edge')
 
     # Mask image except for rectangle space.
     img_shape = org_img.shape
-    masked_img = mask_rectangle_img(edges_img, (50, img_shape[0]), (570, 350),
+    masked_img = mask_rectangle_img(edges_img, (50, img_shape[0]), (470, 350),
                                     (620, 350), (img_shape[1], img_shape[0]))
-    plt.imshow(masked_img)
-    plt.show()
+    ax = plt.subplot2grid(grid_s, (1, 0))
+    ax.imshow(masked_img)
+    ax.set_title('Masked')
 
     # Run Hough line transform and draw line segments.
     line_segs_img = draw_line_segments(masked_img, np.copy(org_img) * 0)
-    plt.imshow(line_segs_img)
-    #plt.show()
+    ax = plt.subplot2grid(grid_s, (1, 1))
+    ax.imshow(line_segs_img)
+    ax.set_title('Segments')
 
     # Combine original image with line segments image.
     comb_lines_img = combine_images(org_img, line_segs_img)
-    plt.imshow(comb_lines_img)
-    #plt.show()
+    ax = plt.subplot2grid(grid_s, (1, 2))
+    ax.imshow(comb_lines_img)
+    ax.set_title('Combine 1')
 
     # Run Hough line transform and draw regression line.
     try:
         reg_line_img = draw_regression_line(masked_img, np.copy(org_img) * 0,
                                             line_thick=10)
-        plt.imshow(reg_line_img)
-        #plt.show()
+        ax = plt.subplot2grid(grid_s, (1, 3))
+        ax.imshow(reg_line_img)
+        ax.set_title('Regression')
     except Exception as e:
-        print e
+        ax = plt.subplot2grid(grid_s, (1, 3))
+        ax.imshow(reg_line_img)
+        ax.set_title(str(e))
+        plt.show()
         continue
 
     # Combine original image with lane lines image.
     comb_lines_img = combine_images(org_img, reg_line_img)
-    plt.imshow(comb_lines_img)
+    ax = plt.subplot2grid(grid_s, (2, 0))
+    ax.imshow(comb_lines_img)
+    ax.set_title('Combine 2')
+
     plt.show()
 
 """

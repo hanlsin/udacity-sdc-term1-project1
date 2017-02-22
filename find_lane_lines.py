@@ -13,8 +13,11 @@ DFLT_HLPT_MAX_LINE_GAP = 10
 
 
 def read_image(image_path):
-    #return mpimg.imread(image_path)
+    # NOTE: When using 'mpimg.imread', an error occurs at 'cv2.Canny'.
+    #       For this reason, changed to using 'cv2.imread'
+    # return mpimg.imread
     return cv2.imread(image_path)
+
 
 def convert_to_gray(image):
     """
@@ -147,15 +150,15 @@ def find_regression_line(lines):
                 right_line_y.append(y1)
                 right_line_x.append(x2)
                 right_line_y.append(y2)
-            #else:
-            #    print("ignore line: ")
-            #    print([x1, y1, x2, y2])
+                # else:
+                #    print("ignore line: ")
+                #    print([x1, y1, x2, y2])
 
     if len(left_line_x) == 0 or len(right_line_x) == 0:
-        #print("LEFT:")
-        #print(left_line_x)
-        #print("RIGHT:")
-        #print(right_line_x)
+        # print("LEFT:")
+        # print(left_line_x)
+        # print("RIGHT:")
+        # print(right_line_x)
         raise ValueError('empty fit')
 
     return np.polyfit(left_line_x, left_line_y, 1), \
@@ -184,7 +187,7 @@ def draw_lane_lines(image):
     img_shape = image.shape
     masked_img = mask_rectangle_img(edges_img, (50, img_shape[0]), (570, 300),
                                     (620, 300), (img_shape[1], img_shape[0]))
-    #masked_img = mask_rectangle_img(edges_img, (50, img_shape[0]), (450, 330),
+    # masked_img = mask_rectangle_img(edges_img, (50, img_shape[0]), (450, 330),
     #                                (520, 330), (img_shape[1], img_shape[0]))
 
     # Run Hough line transform and draw regression line.
@@ -192,23 +195,28 @@ def draw_lane_lines(image):
         reg_line_img = draw_regression_line(masked_img, np.copy(image) * 0,
                                             line_thick=10)
     except ValueError as e:
-        #plt.imshow(gray_img)
-        #plt.show()
-        #plt.imshow(blur_img)
-        #plt.show()
-        #plt.imshow(edges_img)
-        #plt.show()
-        #plt.imshow(masked_img)
-        #plt.show()
+        # plt.imshow(gray_img)
+        # plt.show()
+        # plt.imshow(blur_img)
+        # plt.show()
+        # plt.imshow(edges_img)
+        # plt.show()
+        # plt.imshow(masked_img)
+        # plt.show()
         return image
 
     # Combine original image with line segments image.
     return combine_images(image, reg_line_img)
 
 
-CACHED_LINES_MAX_SIZE = 100
+cached_lines_max_size = 100
 cached_lines_list = []
 cached_lines_idx = 0
+
+
+def set_cache_size(size):
+    cached_lines_max_size = size
+
 
 def reset_cache():
     cached_lines_list[:] = []
@@ -229,7 +237,7 @@ def draw_lane_lines_with_cache(image):
     img_shape = image.shape
     masked_img = mask_rectangle_img(edges_img, (50, img_shape[0]), (570, 300),
                                     (620, 300), (img_shape[1], img_shape[0]))
-    #masked_img = mask_rectangle_img(edges_img, (50, img_shape[0]), (450, 330),
+    # masked_img = mask_rectangle_img(edges_img, (50, img_shape[0]), (450, 330),
     #                                (520, 330), (img_shape[1], img_shape[0]))
 
     # Run Hough line transform.
@@ -239,12 +247,12 @@ def draw_lane_lines_with_cache(image):
     global cached_lines_list
     global cached_lines_idx
 
-    if len(cached_lines_list) < CACHED_LINES_MAX_SIZE:
+    if len(cached_lines_list) < cached_lines_max_size:
         cached_lines_list.append(lines[0])
     else:
         cached_lines_list[cached_lines_idx] = lines[0]
     cached_lines_idx = cached_lines_idx + 1
-    if cached_lines_idx == CACHED_LINES_MAX_SIZE:
+    if cached_lines_idx == cached_lines_max_size:
         cached_lines_idx = 0
 
     # Draw regression line.
